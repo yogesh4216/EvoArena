@@ -1,170 +1,138 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { usePoolState, useParameterHistory } from "@/hooks/useEvoPool";
-import { CURVE_MODES } from "@/lib/contracts";
-import { FeeHistoryChart, ModeTimelineChart, ReserveChart, ReserveSnapshot } from "@/components/Charts";
+import { motion } from "framer-motion";
+import { Activity, Shield } from "lucide-react";
+import HeroSection from "@/components/HeroSection";
+import DynamicFeeChart from "@/components/DynamicFeeChart";
+import SlippageCurveChart from "@/components/SlippageCurveChart";
+import AgentTerminal from "@/components/AgentTerminal";
+import {
+  bootSequence,
+  staggerContainer,
+  depthItem,
+  sectionReveal,
+  springs,
+  DELAYS,
+  TIMING,
+} from "@/lib/motion";
 
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
+export default function HomePage() {
   return (
-    <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5">
-      <h3 className="text-sm font-semibold text-[var(--muted)] mb-3 uppercase tracking-wider">{title}</h3>
-      {children}
-    </div>
-  );
-}
+    <motion.div
+      variants={bootSequence}
+      initial="hidden"
+      animate="visible"
+      className="relative"
+    >
+      {/* ── Hero Section ─────────────────────────────────────── */}
+      <HeroSection />
 
-function Stat({ label, value, sub }: { label: string; value: string; sub?: string }) {
-  return (
-    <div>
-      <div className="text-2xl font-bold">{value}</div>
-      <div className="text-xs text-[var(--muted)]">{label}</div>
-      {sub && <div className="text-xs text-[var(--accent)] mt-1">{sub}</div>}
-    </div>
-  );
-}
-
-export default function PoolPage() {
-  const { state, loading, error } = usePoolState(8000);
-  const paramHistory = useParameterHistory();
-
-  // Accumulate reserve snapshots for the live chart
-  const [reserveSnapshots, setReserveSnapshots] = useState<ReserveSnapshot[]>([]);
-  const prevTradeCount = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!state) return;
-    // Only push a new snapshot if something changed
-    const r0 = Number(state.reserve0);
-    const r1 = Number(state.reserve1);
-    setReserveSnapshots((prev) => {
-      const last = prev[prev.length - 1];
-      if (last && last.reserve0 === r0 && last.reserve1 === r1) return prev;
-      const next = [...prev, { timestamp: Date.now(), reserve0: r0, reserve1: r1 }];
-      return next.length > 100 ? next.slice(-100) : next;
-    });
-    prevTradeCount.current = state.tradeCount;
-  }, [state]);
-
-  if (error) {
-    return (
-      <div className="text-center py-20">
-        <p className="text-[var(--red)] text-lg mb-2">Connection Error</p>
-        <p className="text-[var(--muted)] text-sm">{error}</p>
-        <p className="text-[var(--muted)] text-sm mt-4">Set contract addresses in <code>.env.local</code></p>
-      </div>
-    );
-  }
-
-  if (loading || !state) {
-    return (
-      <div className="text-center py-20">
-        <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[var(--accent)] border-t-transparent"></div>
-        <p className="text-[var(--muted)] mt-4">Loading pool state…</p>
-      </div>
-    );
-  }
-
-  const modeColor = state.curveMode === 0
-    ? "text-[var(--green)]"
-    : state.curveMode === 1
-      ? "text-[var(--red)]"
-      : "text-[var(--yellow)]";
-
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">🏊 EvoPool</h1>
-      <p className="text-[var(--muted)]">Adaptive AMM with dynamic curve, fee, and mode control</p>
-
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card title="Reserve 0">
-          <Stat label="EVOA" value={Number(state.reserve0).toLocaleString(undefined, { maximumFractionDigits: 2 })} />
-        </Card>
-        <Card title="Reserve 1">
-          <Stat label="EVOB" value={Number(state.reserve1).toLocaleString(undefined, { maximumFractionDigits: 2 })} />
-        </Card>
-        <Card title="Price">
-          <Stat label="EVOA / EVOB" value={state.price} />
-        </Card>
-        <Card title="Trades">
-          <Stat label="Total swaps" value={state.tradeCount.toString()} />
-        </Card>
-      </div>
-
-      {/* Parameters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card title="Fee">
-          <div className="text-3xl font-bold">{state.feeBps} <span className="text-base text-[var(--muted)]">bps</span></div>
-          <div className="text-xs text-[var(--muted)] mt-1">{(state.feeBps / 100).toFixed(2)}%</div>
-        </Card>
-        <Card title="Curve Beta">
-          <div className="text-3xl font-bold">{state.curveBeta}</div>
-          <div className="text-xs text-[var(--muted)] mt-1">{(state.curveBeta / 10000).toFixed(4)} (scaled)</div>
-        </Card>
-        <Card title="Curve Mode">
-          <div className={`text-3xl font-bold ${modeColor}`}>{state.curveModeName}</div>
-          <div className="text-xs text-[var(--muted)] mt-1">Mode {state.curveMode}</div>
-        </Card>
-      </div>
-
-      {/* Charts Row 1: Fee/Beta History + Reserve Balances */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card title="📈 Fee & Beta History">
-          <FeeHistoryChart data={paramHistory} />
-        </Card>
-        <Card title="💰 Reserve Balances (Live)">
-          <ReserveChart data={reserveSnapshots} />
-        </Card>
-      </div>
-
-      {/* Charts Row 2: Mode Timeline */}
-      <Card title="🔀 Curve Mode Timeline">
-        <ModeTimelineChart data={paramHistory} />
-      </Card>
-
-      {/* Parameter History Table */}
-      <Card title="Recent Parameter Updates">
-        {paramHistory.length === 0 ? (
-          <p className="text-[var(--muted)] text-sm">No parameter updates found in recent blocks</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-[var(--muted)] text-left">
-                  <th className="pb-2">Block</th>
-                  <th className="pb-2">Fee (bps)</th>
-                  <th className="pb-2">Beta</th>
-                  <th className="pb-2">Mode</th>
-                  <th className="pb-2">Agent</th>
-                  <th className="pb-2">TX</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paramHistory.slice().reverse().map((e, i) => (
-                  <tr key={i} className="border-t border-[var(--border)]">
-                    <td className="py-2">{e.blockNumber}</td>
-                    <td className="py-2">{e.feeBps}</td>
-                    <td className="py-2">{e.curveBeta}</td>
-                    <td className="py-2">{CURVE_MODES[e.curveMode] || e.curveMode}</td>
-                    <td className="py-2 font-mono text-xs">{e.agent.slice(0, 8)}…</td>
-                    <td className="py-2">
-                      <a
-                        href={`https://testnet.bscscan.com/tx/${e.txHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[var(--accent)] hover:underline"
-                      >
-                        View ↗
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* ── Arena Intelligence ───────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-6">
+        {/* Section Header */}
+        <motion.div
+          variants={sectionReveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="flex items-center gap-4 mb-2"
+        >
+          <div
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(240,185,11,0.12) 0%, rgba(240,185,11,0.04) 100%)",
+              border: "1px solid rgba(240,185,11,0.12)",
+            }}
+          >
+            <Activity size={18} className="text-bnb-gold" />
           </div>
-        )}
-      </Card>
-    </div>
+          <div>
+            <h2 className="text-lg font-bold tracking-tight text-white">
+              Arena Intelligence
+            </h2>
+            <p className="text-xs text-[#6b6b80]">
+              Polished graph graphics and refined text
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Charts Grid — staggered depth assembly */}
+        <motion.div
+          variants={staggerContainer(DELAYS.cascade)}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        >
+          <motion.div variants={depthItem}>
+            <DynamicFeeChart />
+          </motion.div>
+          <motion.div variants={depthItem}>
+            <SlippageCurveChart />
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* ── Agent Terminal ───────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16 space-y-6">
+        <motion.div
+          variants={sectionReveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="flex items-center gap-4 mb-2"
+        >
+          <div
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+            style={{
+              background:
+                "linear-gradient(135deg, rgba(0,212,255,0.12) 0%, rgba(0,212,255,0.04) 100%)",
+              border: "1px solid rgba(0,212,255,0.1)",
+            }}
+          >
+            <Shield size={18} className="text-neon-blue" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold tracking-tight text-white">
+              Agent Command Feed
+            </h2>
+            <p className="text-xs text-[#6b6b80]">
+              Live stream from the off-chain AI agent
+            </p>
+          </div>
+        </motion.div>
+
+        <AgentTerminal />
+      </section>
+
+      {/* ── Footer ──────────────────────────────────────────── */}
+      <footer className="border-t border-white/[0.04] py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-bnb-gold glow-text">
+              ⚔️ EvoArena
+            </span>
+            <span className="text-xs text-[#4a4a5e]">
+              AI-Powered Adaptive AMM
+            </span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-[#4a4a5e]">
+            <span>Built on BNB Chain</span>
+            <span className="text-[#2a2a3e]">•</span>
+            <span>Chapel Testnet</span>
+            <span className="text-[#2a2a3e]">•</span>
+            <a
+              href="https://testnet.bscscan.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-bnb-gold/50 hover:text-bnb-gold transition"
+            >
+              Explorer ↗
+            </a>
+          </div>
+        </div>
+      </footer>
+    </motion.div>
   );
 }
