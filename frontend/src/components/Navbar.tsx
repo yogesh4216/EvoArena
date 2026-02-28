@@ -6,12 +6,15 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { WalletButton } from "./WalletButton";
-import { springs } from "@/lib/motion";
+import { Logo } from "./Logo";
 
 const navLinks = [
     { label: "Pool", href: "/" },
     { label: "Agents", href: "/agents" },
     { label: "Swap", href: "/swap" },
+    { label: "Liquidity", href: "/liquidity" },
+    { label: "Audit", href: "/audit" },
+    { label: "Settings", href: "/settings" },
     { label: "Demo", href: "/demo" },
 ];
 
@@ -35,58 +38,54 @@ export default function Navbar() {
                     {/* Left Zone: Logo */}
                     <div className="flex justify-start items-center h-full sm:w-auto">
                         <Link href="/" className="flex items-center gap-2 pl-1 pr-4 shrink-0 h-full">
-                            <div
-                                className="w-[30px] h-[30px] rounded-full flex items-center justify-center shrink-0"
-                                style={{
-                                    background: "linear-gradient(135deg, rgba(240,185,11,0.2) 0%, rgba(240,185,11,0.05) 100%)",
-                                    border: "1px solid rgba(240,185,11,0.25)",
-                                }}
-                            >
-                                <span className="text-[13px]">⚔️</span>
-                            </div>
+                            <Logo />
                             <span className="text-[15px] font-bold text-white tracking-tight shrink-0">
                                 EvoArena
                             </span>
                         </Link>
                     </div>
 
-                    {/* Center Zone: Desktop Nav Links with fixed widths and pure transform sliding pill */}
-                    <div className="hidden md:flex items-center justify-center h-full relative px-2 shrink-0">
-                        {/* 
-                          Pure mathematically driven sliding pill. 
-                          Bypasses Framer Motion's layout engine (which causes reflow jitters during Next.js navigation).
-                        */}
-                        <motion.div
-                            className="absolute top-1/2 left-2 h-[28px] -translate-y-1/2 rounded-full w-[76px] pointer-events-none"
-                            style={{ background: "rgba(255,255,255,0.08)" }}
-                            initial={false}
-                            animate={{
-                                x: Math.max(0, navLinks.findIndex(l => l.href === pathname)) * 76
+                    {/* Center Zone: Desktop Nav Links — pill perfectly hugs each button */}
+                    <div className="hidden md:flex items-center justify-center h-full px-2 shrink-0">
+                        <div
+                            className="flex items-center gap-0.5 p-1 rounded-full"
+                            style={{
+                                background: "rgba(255,255,255,0.04)",
+                                border: "1px solid rgba(255,255,255,0.06)",
                             }}
-                            transition={{ ...springs.smooth, duration: 0.3 }}
-                        />
-
-                        {navLinks.map((link) => {
-                            const isActive = link.href === pathname;
-                            return (
-                                <Link
-                                    key={link.label}
-                                    href={link.href}
-                                    className="relative flex items-center justify-center w-[76px] h-full text-[13px] transition-colors duration-200"
-                                >
-                                    <div className="relative z-[1] flex items-center justify-center">
-                                        {/* Invisible spacer permanently reserves exact width for semibold text */}
-                                        <span className="invisible font-semibold overflow-hidden h-0 pointer-events-none select-none">
+                        >
+                            {navLinks.map((link) => {
+                                const isActive = link.href === pathname;
+                                return (
+                                    <Link
+                                        key={link.label}
+                                        href={link.href}
+                                        /* 1. RELATIVE PARENT — padding creates the pill's physical space */
+                                        className="relative px-4 py-1.5 rounded-full text-[13px] font-medium transition-colors duration-200"
+                                    >
+                                        {/* 2. BACKGROUND PILL — inset-0 stretches it to exactly the padding edges */}
+                                        {isActive && (
+                                            <span
+                                                className="absolute inset-0 rounded-full -z-10"
+                                                style={{
+                                                    background: "rgba(240,185,11,0.12)",
+                                                    border: "1px solid rgba(240,185,11,0.2)",
+                                                }}
+                                            />
+                                        )}
+                                        {/* 3. TEXT — z-10 keeps it above the background */}
+                                        <span
+                                            className={`relative z-10 whitespace-nowrap ${isActive
+                                                ? "text-[#F0B90B] font-semibold"
+                                                : "text-[#8888a0] hover:text-white"
+                                                }`}
+                                        >
                                             {link.label}
                                         </span>
-                                        {/* Visible text layer */}
-                                        <span className={`absolute flex items-center justify-center whitespace-nowrap ${isActive ? "text-white font-semibold" : "text-[#8888a0] hover:text-white font-medium"}`}>
-                                            {link.label}
-                                        </span>
-                                    </div>
-                                </Link>
-                            );
-                        })}
+                                    </Link>
+                                );
+                            })}
+                        </div>
                     </div>
 
                     {/* Right Zone: Network + Wallet (Desktop) or Toggle (Mobile) */}
@@ -135,7 +134,7 @@ export default function Navbar() {
                             initial={{ opacity: 0, scale: 0.98 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.98 }}
-                            transition={springs.snappy}
+                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
                             className="md:hidden absolute top-[64px] left-0 right-0 px-4 pb-4 bg-[#030305]/95 backdrop-blur-3xl border-b border-[#f0b90b]/10 shadow-[0_20px_40px_rgba(0,0,0,0.8)] pointer-events-auto"
                             style={{ willChange: "transform, opacity" }}
                         >

@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    TrendingUp,
-    Zap,
-    Bot,
     ArrowUp,
     ArrowDown,
 } from "lucide-react";
+import { TVLIcon, APYIcon, AgentIcon } from "@/components/icons";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import {
@@ -22,39 +20,48 @@ import {
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { SkeletonCard } from "@/components/SkeletonLoader";
 
-const ArenaScene = dynamic(() => import("./ArenaScene"), { ssr: false });
+const ArenaOrb = dynamic(() => import("./ArenaOrb"), { ssr: false });
 
 /* ── Stat card data ──────────────────────────────────────── */
-const statConfigs = [
-    {
-        label: "TOTAL VALUE LOCKED",
-        value: 2.47,
-        decimals: 2,
-        prefix: "$",
-        suffix: "M",
-        change: 12.4,
-        icon: TrendingUp,
-    },
-    {
-        label: "CURRENT POOL APY",
-        value: 18.6,
-        decimals: 1,
-        prefix: "",
-        suffix: "%",
-        change: 3.2,
-        icon: Zap,
-    },
-    {
-        label: "ACTIVE AI AGENTS",
-        value: 3,
-        decimals: 0,
-        prefix: "",
-        suffix: "",
-        change: 0,
-        changeText: "Online",
-        icon: Bot,
-    },
-];
+const statConfigs: Array<{
+    label: string;
+    value: number;
+    decimals: number;
+    prefix: string;
+    suffix: string;
+    change?: number;
+    changeText?: string;
+    icon: React.ElementType;
+}> = [
+        {
+            label: "TOTAL VALUE LOCKED",
+            value: 2.47,
+            decimals: 2,
+            prefix: "$",
+            suffix: "M",
+            change: 12.4,
+            icon: TVLIcon,
+        },
+        {
+            label: "CURRENT POOL APY",
+            value: 18.6,
+            decimals: 1,
+            prefix: "",
+            suffix: "%",
+            change: 3.2,
+            icon: APYIcon,
+        },
+        {
+            label: "ACTIVE AI AGENTS",
+            value: 3,
+            decimals: 0,
+            prefix: "",
+            suffix: "",
+            change: 0,
+            changeText: "Online",
+            icon: AgentIcon,
+        },
+    ];
 
 /* ── Animated Stat Card ──────────────────────────────────── */
 function StatCard({
@@ -118,7 +125,7 @@ function StatCard({
                             <span className="text-xs font-semibold text-green-400">
                                 {changeText}
                             </span>
-                        ) : change !== 0 ? (
+                        ) : change !== undefined && change !== 0 ? (
                             <motion.span
                                 key={`dir-${flashKey}`}
                                 initial={{ opacity: 0, y: direction === "up" ? 4 : -4 }}
@@ -148,7 +155,7 @@ function StatCard({
                         border: "1px solid rgba(240,185,11,0.12)",
                     }}
                 >
-                    <Icon size={20} className="text-bnb-gold" />
+                    <Icon className="w-5 h-5 text-bnb-gold" />
                 </div>
             </div>
         </motion.div>
@@ -166,89 +173,59 @@ export default function HeroSection() {
     }, []);
 
     return (
-        <section className="relative min-h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
-            {/* Starfield Background */}
-            <div className="absolute inset-x-0 top-16 bottom-0 z-0">
-                <div
-                    className="absolute inset-x-0 top-16 bottom-0"
-                    style={{
-                        background:
-                            "radial-gradient(ellipse 80% 60% at 70% 30%, rgba(30, 25, 50, 0.9) 0%, rgba(3, 3, 5, 1) 70%)",
+        <section className="relative w-full max-w-7xl mx-auto px-6 pt-24 pb-12 min-h-[calc(100vh-4rem)] flex flex-col justify-center">
+            {/* The Grid: Splits the screen exactly 50/50 on large screens */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center flex-1">
+
+                {/* --- LEFT SIDE: TEXT --- */}
+                <motion.div
+                    initial={{ opacity: 0, x: -16, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                    transition={{
+                        ...springs.gentle,
+                        opacity: { duration: TIMING.normal },
+                        filter: { duration: TIMING.slow },
                     }}
-                />
-                <div
-                    className="absolute top-[5%] right-[5%] w-[55%] h-[80%]"
-                    style={{
-                        background:
-                            "radial-gradient(ellipse at center, rgba(240,185,11,0.06) 0%, rgba(240,185,11,0.02) 40%, transparent 70%)",
+                    className="relative z-10 flex flex-col items-start justify-center"
+                >
+                    <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight mb-4 leading-[1.05]">
+                        The Arena
+                    </h1>
+                    <p className="text-lg md:text-xl text-slate-400 font-light max-w-md">
+                        AI-driven adaptive liquidity protocol on BNB Chain
+                    </p>
+                </motion.div>
+
+                {/* --- RIGHT SIDE: 3D ORB --- */}
+                {/* Constrained Box: This forces the orb to stay on the right side and limits its height */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.88, filter: "blur(6px)" }}
+                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                    transition={{
+                        ...springs.settle,
+                        opacity: { duration: TIMING.slow, delay: 0.1 },
+                        filter: { duration: TIMING.slow, delay: 0.15 },
                     }}
-                />
-                <div
-                    className="absolute top-[20%] right-[15%] w-[40%] h-[50%]"
-                    style={{
-                        background:
-                            "radial-gradient(ellipse at center, rgba(0,140,255,0.04) 0%, transparent 60%)",
-                    }}
-                />
-                <div className="stars-layer absolute inset-x-0 top-16 bottom-0" />
+                    className="relative w-full h-[400px] lg:h-[600px] flex items-center justify-center z-0"
+                >
+                    {/* Your 3D Component */}
+                    <Suspense fallback={
+                        <div className="w-full h-full flex items-center justify-center">
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                                className="w-14 h-14 rounded-full border-2 border-bnb-gold/40 border-t-transparent"
+                            />
+                        </div>
+                    }>
+                        <ArenaOrb />
+                    </Suspense>
+                </motion.div>
             </div>
 
-            {/* Main Content */}
-            <div className="relative z-[2] flex-1 flex items-center max-w-7xl mx-auto w-full px-6 sm:px-8 pt-24 pb-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full items-center">
-                    {/* Left Column — Text */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -16, filter: "blur(4px)" }}
-                        animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                        transition={{
-                            ...springs.gentle,
-                            opacity: { duration: TIMING.normal },
-                            filter: { duration: TIMING.slow },
-                        }}
-                        className="space-y-5"
-                    >
-                        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.05]">
-                            <span className="text-white">The Arena</span>
-                        </h1>
-                        <p className="text-base sm:text-lg text-[#7a7a92] max-w-md leading-relaxed">
-                            AI-driven adaptive liquidity protocol on BNB Chain
-                        </p>
-                    </motion.div>
-
-                    {/* Right Column — 3D Orb */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.88, filter: "blur(6px)" }}
-                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                        transition={{
-                            ...springs.settle,
-                            opacity: { duration: TIMING.slow, delay: 0.1 },
-                            filter: { duration: TIMING.slow, delay: 0.15 },
-                        }}
-                        className="relative h-[360px] sm:h-[420px] lg:h-[480px]"
-                    >
-                        <Suspense
-                            fallback={
-                                <div className="w-full h-full flex items-center justify-center">
-                                    <motion.div
-                                        animate={{ rotate: 360 }}
-                                        transition={{
-                                            duration: 1.5,
-                                            repeat: Infinity,
-                                            ease: "linear",
-                                        }}
-                                        className="w-14 h-14 rounded-full border-2 border-bnb-gold/40 border-t-transparent"
-                                    />
-                                </div>
-                            }
-                        >
-                            <ArenaScene />
-                        </Suspense>
-                    </motion.div>
-                </div>
-            </div>
-
-            {/* Bottom Stat Cards — Z-depth assembly */}
-            <div className="relative z-[2] max-w-7xl mx-auto w-full px-6 sm:px-8 pb-10">
+            {/* --- BOTTOM SIDE: STAT CARDS --- */}
+            {/* This ensures the cards stay perfectly below the text and orb */}
+            <div className="mt-12 relative z-20 w-full">
                 <AnimatePresence mode="wait">
                     {!booted ? (
                         <motion.div

@@ -1,16 +1,8 @@
-<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Gold hexagon outline (pointy-top) -->
-  <polygon
-    points="24,3 41.4,13.5 41.4,34.5 24,45 6.6,34.5 6.6,13.5"
-    fill="none"
-    stroke="#F0B90B"
-    stroke-width="3.2"
-    stroke-linejoin="round"
-  />
-  <!-- Three blue spokes: center → top vertex, center → lower-right vertex, center → lower-left vertex -->
-  <line x1="24" y1="24" x2="24"    y2="3"    stroke="#7EB3E8" stroke-width="2.4" stroke-linecap="round"/>
-  <line x1="24" y1="24" x2="41.4"  y2="34.5" stroke="#7EB3E8" stroke-width="2.4" stroke-linecap="round"/>
-  <line x1="24" y1="24" x2="6.6"   y2="34.5" stroke="#7EB3E8" stroke-width="2.4" stroke-linecap="round"/>
-  <!-- Gold center dot -->
-  <circle cx="24" cy="24" r="4.2" fill="#F0B90B"/>
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 3 Inner Isometric Lines -->
+  <path d="M50 10 L50 50 M15.36 70 L50 50 M84.64 70 L50 50" stroke="#60A5FA" stroke-width="4" stroke-linecap="round" />
+  <!-- Hexagon Outline -->
+  <polygon points="50,10 84.64,30 84.64,70 50,90 15.36,70 15.36,30" stroke="#F0B90B" stroke-width="8" stroke-linejoin="round" />
+  <!-- Center Dot -->
+  <circle cx="50" cy="50" r="12" fill="#F0B90B" />
 </svg>

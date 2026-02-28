@@ -3,6 +3,9 @@ import "./globals.css";
 import { WalletProvider } from "@/hooks/useWallet";
 import { ToastProvider } from "@/components/Toast";
 import Navbar from "@/components/Navbar";
+import { PoolEventListener } from "@/components/PoolEventListener";
+import { KeyboardShortcuts } from "@/components/KeyboardShortcuts";
+import { OnboardingTour } from "@/components/OnboardingTour";
 
 export const metadata: Metadata = {
   title: "EvoArena — AI-Powered Adaptive Liquidity",
@@ -21,6 +24,9 @@ export default function RootLayout({
       <body className="min-h-screen antialiased pt-16">
         <WalletProvider>
           <ToastProvider>
+            <PoolEventListener />
+            <KeyboardShortcuts />
+            <OnboardingTour />
             <Navbar />
             <main className="px-4 sm:px-6">{children}</main>
           </ToastProvider>

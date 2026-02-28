@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, Shield } from "lucide-react";
+import { ActivityIcon, ShieldIcon } from "@/components/icons";
 import HeroSection from "@/components/HeroSection";
 import DynamicFeeChart from "@/components/DynamicFeeChart";
 import SlippageCurveChart from "@/components/SlippageCurveChart";
 import AgentTerminal from "@/components/AgentTerminal";
+import { Logo } from "@/components/Logo";
 import {
   bootSequence,
   staggerContainer,
@@ -45,7 +46,7 @@ export default function HomePage() {
               border: "1px solid rgba(240,185,11,0.12)",
             }}
           >
-            <Activity size={18} className="text-bnb-gold" />
+            <ActivityIcon className="w-[18px] h-[18px] text-bnb-gold" />
           </div>
           <div>
             <h2 className="text-lg font-bold tracking-tight text-white">
@@ -91,7 +92,7 @@ export default function HomePage() {
               border: "1px solid rgba(0,212,255,0.1)",
             }}
           >
-            <Shield size={18} className="text-neon-blue" />
+            <ShieldIcon className="w-[18px] h-[18px] text-neon-blue" />
           </div>
           <div>
             <h2 className="text-lg font-bold tracking-tight text-white">
@@ -110,8 +111,8 @@ export default function HomePage() {
       <footer className="border-t border-white/[0.04] py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-bnb-gold glow-text">
-              ⚔️ EvoArena
+            <span className="flex items-center gap-1.5 text-sm font-bold text-bnb-gold glow-text">
+              <Logo className="w-[18px] h-[18px]" /> EvoArena
             </span>
             <span className="text-xs text-[#4a4a5e]">
               AI-Powered Adaptive AMM
