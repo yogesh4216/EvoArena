@@ -1,0 +1,16 @@
+<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gold hexagon outline (pointy-top) -->
+  <polygon
+    points="24,3 41.4,13.5 41.4,34.5 24,45 6.6,34.5 6.6,13.5"
+    fill="none"
+    stroke="#F0B90B"
+    stroke-width="3.2"
+    stroke-linejoin="round"
+  />
+  <!-- Three blue spokes: center → top vertex, center → lower-right vertex, center → lower-left vertex -->
+  <line x1="24" y1="24" x2="24"    y2="3"    stroke="#7EB3E8" stroke-width="2.4" stroke-linecap="round"/>
+  <line x1="24" y1="24" x2="41.4"  y2="34.5" stroke="#7EB3E8" stroke-width="2.4" stroke-linecap="round"/>
+  <line x1="24" y1="24" x2="6.6"   y2="34.5" stroke="#7EB3E8" stroke-width="2.4" stroke-linecap="round"/>
+  <!-- Gold center dot -->
+  <circle cx="24" cy="24" r="4.2" fill="#F0B90B"/>
+</svg>
